@@ -1,12 +1,13 @@
 import * as express from "express";
 import { pipe } from "fp-ts/lib/function";
-import * as E from "fp-ts/lib/Either";
-import { Errors } from "io-ts";
-import * as PR from "io-ts/PathReporter";
+import * as TE from "fp-ts/lib/TaskEither";
+import { initContainers } from "./utils/cosmos";
 import { Config } from "./types";
+import { config } from "./utils/config";
 import { log } from "./utils/logger";
 import mainRouter from "./routes/main_router";
 
+// eslint-disable-next-line @typescript-eslint/no-shadow
 export const createApp = (config: Config): express.Application => {
   const app = express();
 
@@ -31,16 +32,18 @@ export const createApp = (config: Config): express.Application => {
   return app;
 };
 
-export const getConfig = (env: NodeJS.ProcessEnv): E.Either<Errors, Config> =>
-  pipe(env, Config.decode);
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const init = async () =>
+  await pipe(
+    createApp(config),
+    TE.of,
+    // init db containers
+    TE.chainFirst(initContainers),
+    TE.mapLeft(_ => {
+      log.error("Error while starting the server");
+    })
+  )();
 
-pipe(
-  getConfig(process.env),
-  E.map(config => createApp(config)),
-  E.mapLeft(err => {
-    log.error(`Error while starting the server: ${PR.failure(err).join("\n")}`);
-    throw new Error(
-      "Error while starting the server: " + PR.failure(err).join("\n")
-    );
-  })
-);
+init().catch(() => {
+  process.exit(1);
+});

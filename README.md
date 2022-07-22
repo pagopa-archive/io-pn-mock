@@ -9,7 +9,7 @@ Then you should generate all the types needed for the application to run, by run
 
 ```yarn generate```
 
-Next, copy `env.example` file and replaced the variables with your own.
+Next, copy `env.example` file and replace the variables with your own.
 
 Finally, build the project and launch it via ```yarn build && yarn start```
 **Have fun**

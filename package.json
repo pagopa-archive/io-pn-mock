@@ -13,7 +13,7 @@
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "start": "node -r dotenv/config dist/index.js",
     "watch": "nodemon -r dotenv/config src/index.ts",
-    "pregenerate": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-internal-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
+    "pregenerate": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-external-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
     "generate": "npm-run-all generate:*",
     "generate:openapi": "gen-api-models --api-spec ./docs/openapi/bundled-openapi.yaml --out-dir ./src/generated/ --strict false"
   },
@@ -36,7 +36,8 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@pagopa/ts-commons": "^10.7.1",
+    "@pagopa/io-functions-commons": "^25.5.1",
+    "@pagopa/ts-commons": "^10.8.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "fp-ts": "^2.12.1",
