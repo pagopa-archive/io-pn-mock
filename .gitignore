@@ -1,5 +1,8 @@
 node_modules/
 dist/
+generated
+docs/openapi/bundled-openapi.yaml
+.env
 npm-debug.log
 yarn-error.log
 coverage

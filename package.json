@@ -1,8 +1,8 @@
 {
-  "name": "TODO",
+  "name": "io-pn-mock",
   "version": "0.0.1",
-  "description": "TODO",
-  "repository": "https://github.com/pagopa/TODO",
+  "description": "mock project for the PN infrastructure",
+  "repository": "https://github.com/pagopa/io-pn-mock",
   "author": "https://pagopa.gov.it",
   "license": "MIT",
   "scripts": {
@@ -10,24 +10,39 @@
     "build": "tsc",
     "postversion": "git push && git push --tags",
     "test": "jest",
-    "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx"
+    "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
+    "start": "node -r dotenv/config dist/index.js",
+    "watch": "nodemon -r dotenv/config src/index.ts",
+    "pregenerate": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-internal-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
+    "generate": "npm-run-all generate:*",
+    "generate:openapi": "gen-api-models --api-spec ./docs/openapi/bundled-openapi.yaml --out-dir ./src/generated/ --strict false"
   },
   "devDependencies": {
     "@pagopa/danger-custom-rules": "^2.0.3",
     "@pagopa/eslint-config": "^1.3.1",
+    "@pagopa/openapi-codegen-ts": "^11.2.0",
+    "@types/express": "^4.17.13",
     "@types/jest": "^25.2.1",
     "@types/node": "^14.17.0",
     "danger": "^11.0.7",
     "danger-plugin-digitalcitizenship": "*",
     "eslint-plugin-prettier": "^3.1.1",
     "jest": "^25.2.7",
+    "nodemon": "^2.0.19",
+    "npm-run-all": "^4.1.5",
     "prettier": "^1.12.1",
     "rimraf": "^2.6.2",
     "ts-jest": "^25.3.1",
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@pagopa/ts-commons": "^10.7.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
     "fp-ts": "^2.12.1",
-    "io-ts": "^2.2.16"
+    "io-ts": "^2.2.16",
+    "logform": "^2.4.2",
+    "node-fetch": "^3.2.8",
+    "winston": "^3.8.1"
   }
 }

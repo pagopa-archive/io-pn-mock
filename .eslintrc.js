@@ -21,6 +21,7 @@ module.exports = {
     "@pagopa/eslint-config/strong",
   ],
   "rules": {
-
+    "semi": ["warn", "always"],
+    "quotes": ["error", "double"]
   }
 }
