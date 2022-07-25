@@ -11,6 +11,6 @@ export const config = pipe(
   getConfig(process.env),
   E.getOrElseW(err => {
     log.error(`Error while starting the server: ${err.toString()}`);
-    throw new Error("Error while starting the server: " + err.toString());
+    throw new Error(`Error while starting the server: ${err.toString()}`);
   })
 );
