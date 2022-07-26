@@ -1,6 +1,6 @@
 import * as express from "express";
 import { log } from "./utils/logger";
-import mainRouter from "./routes/main_router";
+import mainRouter from "./routes/courtesy_router";
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
 export const createApp = (): express.Application => {
