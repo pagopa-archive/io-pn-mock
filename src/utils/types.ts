@@ -6,15 +6,6 @@ import {
 } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import { IoCourtesyDigitalAddressActivation } from "../generated/IoCourtesyDigitalAddressActivation";
 
-export const Config = t.type({
-  COSMOSDB_KEY: t.string,
-  COSMOSDB_NAME: t.string,
-  COSMOSDB_URI: t.string,
-  SERVER_PORT: t.string
-});
-
-export type Config = t.TypeOf<typeof Config>;
-
 export const NewActivationDocument = wrapWithKind(
   t.intersection([IoCourtesyDigitalAddressActivation, BaseModel]),
   "INewPNActivationModel"
