@@ -1,6 +1,5 @@
 import { pipe } from "fp-ts/function";
 import * as E from "fp-ts/lib/Either";
-import type { Errors } from "io-ts";
 import * as t from "io-ts";
 import { log } from "./logger";
 
@@ -13,7 +12,7 @@ export const Config = t.type({
 
 export type Config = t.TypeOf<typeof Config>;
 
-export const getConfig = (env: NodeJS.ProcessEnv): E.Either<Errors, Config> =>
+export const getConfig = (env: NodeJS.ProcessEnv): E.Either<t.Errors, Config> =>
   pipe(env, Config.decode);
 
 export const config = pipe(

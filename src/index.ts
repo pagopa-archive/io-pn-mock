@@ -10,7 +10,7 @@ const init = async () =>
   await pipe(
     createApp(),
     TE.of,
-    TE.map((app) => {
+    TE.map(app => {
       app.listen(config.SERVER_PORT, () => {
         log.info(`SERVER LISTENING ON PORT ${config.SERVER_PORT}`);
       });
