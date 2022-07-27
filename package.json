@@ -15,7 +15,8 @@
     "watch": "nodemon -r dotenv/config src/index.ts",
     "pregenerate": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-external-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
     "generate": "npm-run-all generate:*",
-    "generate:openapi": "gen-api-models --api-spec ./docs/openapi/bundled-openapi.yaml --out-dir ./src/generated/ --strict false"
+    "generate:openapi": "gen-api-models --api-spec ./docs/openapi/bundled-openapi.yaml --out-dir ./src/generated/ --strict false",
+    "generate:functions-services": "gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-functions-services/master/openapi/index.yaml --out-dir ./src/generated --strict false --request-types --response-decoders --client"
   },
   "devDependencies": {
     "@pagopa/danger-custom-rules": "^2.0.3",
@@ -44,6 +45,7 @@
     "fp-ts": "^2.12.1",
     "io-ts": "^2.2.16",
     "logform": "^2.4.2",
+    "node-fetch": "^3.2.9",
     "winston": "^3.8.1"
   }
 }
