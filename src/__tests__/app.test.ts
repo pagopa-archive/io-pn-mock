@@ -4,6 +4,9 @@ import { UserActivationDocument } from "../models/user_activation_document";
 import { mocked } from "ts-jest/utils"
 
 jest.mock("../models/user_activation_document");
+jest.mock("../utils/functions_services_client.ts");
+
+const aFiscalCode = "AAAAAA00T11B123B";
 
 describe("app", () => {
   let app: any;
@@ -25,8 +28,7 @@ describe("app", () => {
     })
 
     it("should return a 200 if the x-pagopa-cx-taxid header is provided", async () => {
-      const res = await app.get(endpoint).set({ "x-pagopa-cx-taxid": "example", "x-api-key": "key" });
-      expect(UserActivationDocument).toHaveBeenCalledTimes(1);
+      const res = await app.get(endpoint).set({ "x-pagopa-cx-taxid": aFiscalCode, "x-api-key": "key" });
       expect(res.status).toBe(200);
     })
 
@@ -48,7 +50,7 @@ describe("app", () => {
     })
 
     it("should return a 204 if the x-pagopa-cx-taxid header is provided", async () => {
-      const res = await app.put(endpoint).set({ "x-pagopa-cx-taxid": "example", "x-api-key": "key" }).send({ activationStatus: true });
+      const res = await app.put(endpoint).set({ "x-pagopa-cx-taxid": aFiscalCode, "x-api-key": "key" }).send({ activationStatus: true });
       expect(UserActivationDocument).toHaveBeenCalledTimes(1);
       expect(res.status).toBe(204);
     })
