@@ -135,10 +135,12 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
                     : ActivationStatusEnum.INACTIVE
                 }
               }),
-            () =>
-              ResponseErrorInternal(
+            (err) => {
+              log.error(`upsertServiceActivation responded with: ${err}`);
+              return ResponseErrorInternal(
                 "Could not update the service activation on functions-services"
               )
+            }
           )
         ),
         //
