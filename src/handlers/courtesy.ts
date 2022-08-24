@@ -21,7 +21,6 @@ import {
 import { INonEmptyStringTag } from "@pagopa/ts-commons/lib/strings";
 import { CosmosDecodingError } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
 import * as PR from "io-ts/PathReporter";
-import { FiscalCode } from "@pagopa/ts-commons/lib/strings";
 import { IoCourtesyDigitalAddressActivation } from "../generated/IoCourtesyDigitalAddressActivation";
 import { UserActivationDocument } from "../models/user_activation_document";
 import { NewActivationDocument } from "../utils/types";
@@ -29,22 +28,7 @@ import { dbInstance } from "../utils/cosmos";
 import { log } from "../utils/logger";
 import { Client } from "../generated/client";
 import { ActivationStatusEnum } from "../generated/ActivationStatus";
-
-const validateTaxIdHeader = (req: express.Request) => (): TE.TaskEither<
-  IResponseErrorValidation,
-  FiscalCode
-> =>
-  pipe(
-    req.headers["x-pagopa-cx-taxid"],
-    FiscalCode.decode,
-    E.mapLeft(() =>
-      ResponseErrorValidation(
-        "Error while processing request",
-        "Missing x-pagopa-cx-taxid header"
-      )
-    ),
-    TE.fromEither
-  );
+import { validateTaxIdHeader } from "../utils/validators";
 
 export const courtesyGetHandler = (
   req: express.Request
@@ -135,11 +119,11 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
                     : ActivationStatusEnum.INACTIVE
                 }
               }),
-            (err) => {
+            err => {
               log.error(`upsertServiceActivation responded with: ${err}`);
               return ResponseErrorInternal(
                 "Could not update the service activation on functions-services"
-              )
+              );
             }
           )
         ),

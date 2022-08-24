@@ -13,10 +13,13 @@
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "start": "node -r dotenv/config dist/index.js",
     "watch": "nodemon -r dotenv/config src/index.ts",
-    "pregenerate": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-external-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
+    "pregenerate": "npm-run-all openapi:*",
+    "openapi:bundle-courtesy": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-external-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
+    "openapi:bundle-delivery": "bundle-api-spec --api-spec ./docs/openapi/delivery/pn-delivery.yaml --out-path ./docs/openapi/delivery/bundled-delivery.yaml",
     "generate": "npm-run-all generate:*",
     "generate:openapi": "gen-api-models --api-spec ./docs/openapi/bundled-openapi.yaml --out-dir ./src/generated/ --strict false",
-    "generate:functions-services": "bash ./scripts/fn_services_generate.sh"
+    "generate:functions-services": "bash ./scripts/fn_services_generate.sh",
+    "generate:pn-delivery": "gen-api-models --api-spec ./docs/openapi/delivery/bundled-delivery.yaml --out-dir ./src/generated/ --strict false"
   },
   "devDependencies": {
     "@pagopa/danger-custom-rules": "^2.0.3",

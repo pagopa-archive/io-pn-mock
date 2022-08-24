@@ -1,6 +1,7 @@
 import * as express from "express";
 import { log } from "./utils/logger";
-import mainRouter from "./routes/courtesy_router";
+import courtesy_router from "./routes/courtesy_router";
+import delivery_router from "./routes/notifications_router";
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
 export const createApp = (): express.Application => {
@@ -13,7 +14,8 @@ export const createApp = (): express.Application => {
   app.use(express.urlencoded({ extended: true }));
 
   // ROUTES
-  app.use(mainRouter);
+  app.use(courtesy_router);
+  app.use(delivery_router);
 
   process.on("SIGINT", () => {
     log.info("RECEIVED SIGINT, CLOSING APPLICATION...");
