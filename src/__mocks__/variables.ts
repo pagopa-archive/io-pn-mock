@@ -39,12 +39,12 @@ export const aValidNotificationAttachmentDownloadMetadataResponse: NotificationA
   contentLength: 1,
   contentType: "content type",
   filename: "validName",
-  url: "validUrl",
+  url: "/download",
   sha256: "f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b"
 };
 
 export const aValidLegalFactDownloadMetadataResponse: LegalFactDownloadMetadataResponse = {
   contentLength: 1,
   filename: "name.extension",
-  url: "aValidUrl"
+  url: "/download"
 };

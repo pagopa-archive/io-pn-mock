@@ -80,8 +80,16 @@ describe("app", () => {
   });
 
   describe("GET /delivery/notifications/received/:iun?", () => {
+    it("should return a 400 error if the x-pagopa-cx-taxid is not provided", async () => {
+      const res = await app.get("/delivery/notifications/received/validIun");
+      expect(res.status).toBe(400);
+      expect(res.body.detail).toBe("taxId must be provided inside headers");
+    });
+
     it("should return a 400 error if the iun is not valid", async () => {
-      const res = await app.get("/delivery/notifications/received/");
+      const res = await app
+        .get("/delivery/notifications/received/")
+        .set({ "x-pagopa-cx-taxid": aFiscalCode });
       expect(res.status).toBe(400);
       expect(res.body.detail).toBe(
         "The iun provided is not valid, please check for existance"
@@ -89,7 +97,9 @@ describe("app", () => {
     });
 
     it("should return a 200 if the iun is provided inside params", async () => {
-      const res = await app.get("/delivery/notifications/received/validIun");
+      const res = await app
+        .get("/delivery/notifications/received/validIun")
+        .set({ "x-pagopa-cx-taxid": aFiscalCode });
       expect(res.status).toBe(200);
       expect(res.body.paProtocolNumber).toBe("1");
     });

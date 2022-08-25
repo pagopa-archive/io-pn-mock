@@ -29,7 +29,8 @@ export const getReceivedNotificationHandler = (
   IResponseSuccessJson<FullReceivedNotification> | IPNResponseErrorProblem
 > =>
   pipe(
-    validateIun(req.params.iun),
+    validateTaxIdInHeader(req),
+    TE.chain(() => validateIun(req.params.iun)),
     TE.map(() => ResponseSuccessJson(aValidFullReceivedNotification)),
     TE.toUnion
   )();
@@ -41,7 +42,7 @@ export const getSentNotificationDocumentHandler = (
   | IPNResponseErrorProblem
 > =>
   pipe(
-    validateTaxIdInHeader(req)(),
+    validateTaxIdInHeader(req),
     TE.chain(() => validateIun(req.params.iun)),
     TE.chain(() => validateDocIdx(req.params.docIdx)),
     TE.map(() =>
@@ -57,7 +58,7 @@ export const getLegalFactHandler = (
   | IPNResponseErrorProblem
 > =>
   pipe(
-    validateTaxIdInHeader(req)(),
+    validateTaxIdInHeader(req),
     TE.chain(() => validateIun(req.params.iun)),
     TE.chain(() => validateLegalFactType(req.params.legalFactType)),
     TE.chain(() => validateLegalFactId(req.params.legalFactId)),

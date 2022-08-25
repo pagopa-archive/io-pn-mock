@@ -32,7 +32,7 @@ export const validateTaxIdHeader = (req: express.Request) => (): TE.TaskEither<
 
 export const validateTaxIdInHeader = (
   req: express.Request
-) => (): TE.TaskEither<IPNResponseErrorProblem, FiscalCode> =>
+): TE.TaskEither<IPNResponseErrorProblem, FiscalCode> =>
   pipe(
     req.headers["x-pagopa-cx-taxid"],
     FiscalCode.decode,
@@ -79,8 +79,7 @@ export const validateDocIdx = (
         "docIdx must be provided inside params as non empty string",
         []
       )
-    ),
-    TE.map((idx: string) => idx)
+    )
   );
 
 /**
