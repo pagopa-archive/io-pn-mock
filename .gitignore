@@ -2,6 +2,7 @@ node_modules/
 dist/
 generated
 docs/openapi/bundled-openapi.yaml
+bundled*
 .env
 npm-debug.log
 yarn-error.log

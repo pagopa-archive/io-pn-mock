@@ -21,3 +21,12 @@ export const RetrievedActivationDocument = wrapWithKind(
 export type RetrievedActivationDocument = t.TypeOf<
   typeof RetrievedActivationDocument
 >;
+
+export const LegalFactType = t.union([
+  t.literal("SENDER_ACK"),
+  t.literal("DIGITAL_DELIVERY"),
+  t.literal("ANALOG_DELIVERY"),
+  t.literal("RECIPIENT_ACCESS")
+]);
+
+export type LegalFactType = t.TypeOf<typeof LegalFactType>;
