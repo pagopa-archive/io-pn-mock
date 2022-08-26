@@ -136,9 +136,7 @@ describe("app", () => {
 
     it("should return a 200 if the x-pagopa-cx-taxid, iun and docIdx are valid", async () => {
       const res = await app
-        .get(
-          "/delivery/notifications/sent/validIun/attachments/documents/docIdx"
-        )
+        .get("/delivery/notifications/sent/validIun/attachments/documents/1")
         .set({ "x-pagopa-cx-taxid": aFiscalCode });
       expect(res.status).toBe(200);
       expect(res.body).toStrictEqual(

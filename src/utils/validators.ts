@@ -7,13 +7,16 @@ import { pipe } from "fp-ts/lib/function";
 import * as express from "express";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
-import { NonEmptyString } from "@pagopa/ts-commons/lib/strings";
 import { FiscalCode } from "../generated/FiscalCode";
-import { validIunList, validLegalFactList } from "../__mocks__/variables";
+import {
+  validIunList,
+  validLegalFactList,
+  validDocIdxIdList
+} from "../__mocks__/variables";
 import { LegalFactType } from "./types";
 import { IPNResponseErrorProblem, PNResponseErrorProblem } from "./responses";
 
-//this function should be replaced with the nearly next one, i'm not removing this at the moment to not break anything
+// this function should be replaced with the nearly next one, i'm not removing this at the moment to not break anything
 export const validateTaxIdHeader = (req: express.Request) => (): TE.TaskEither<
   IResponseErrorValidation,
   FiscalCode
@@ -71,15 +74,19 @@ export const validateDocIdx = (
   docIdx: unknown
 ): TE.TaskEither<IPNResponseErrorProblem, string> =>
   pipe(
-    NonEmptyString.decode(docIdx),
-    TE.fromEither,
+    validDocIdxIdList,
+    TE.fromPredicate(
+      validList => validList.includes(docIdx as string),
+      () => "The docIdx is not valid"
+    ),
     TE.mapLeft(() =>
       PNResponseErrorProblem(
         "Invalid docIdx",
         "docIdx must be provided inside params as non empty string",
         []
       )
-    )
+    ),
+    TE.map(() => docIdx as string)
   );
 
 /**
@@ -97,8 +104,7 @@ export const validateLegalFactType = (
         "legalFactType must be one of the following: SENDER_ACK | DIGITAL_DELIVERY | ANALOG_DELIVERY | RECIPIENT_ACCESS",
         []
       )
-    ),
-    TE.map((lft: LegalFactType) => lft)
+    )
   );
 
 /**

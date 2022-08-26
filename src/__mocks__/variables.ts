@@ -16,6 +16,9 @@ export const validLegalFactList = [
   { category: LegalFactCategoryEnum.SENDER_ACK, key: "validLegalFactId" }
 ];
 
+/**represent a list of existing legalFact*/
+export const validDocIdxIdList: string[] = ["1"];
+
 export const aValidFullReceivedNotification: FullReceivedNotification = {
   notificationStatus: NotificationStatusEnum.ACCEPTED,
   timeline: [
@@ -26,7 +29,17 @@ export const aValidFullReceivedNotification: FullReceivedNotification = {
   notificationStatusHistory: [],
   iun: validIunList[0],
   sentAt: new Date("2022-08-23T12:24:59.349Z"),
-  documents: [],
+  documents: [
+    {
+      contentType: "contentType",
+      digests: {
+        sha256:
+          "f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b"
+      },
+      ref: { key: "key", versionToken: "token" },
+      docIdx: "1"
+    }
+  ],
   notificationFeePolicy: NotificationFeePolicyEnum.FLAT_RATE,
   paProtocolNumber: "1",
   physicalCommunicationType:

@@ -6,6 +6,7 @@ import {
 } from "@pagopa/ts-commons/lib/responses";
 
 import * as TE from "fp-ts/lib/TaskEither";
+import { sequenceT } from "fp-ts/lib/Apply";
 import { FullReceivedNotification } from "../generated/FullReceivedNotification";
 import { IPNResponseErrorProblem } from "../utils/responses";
 import {
@@ -42,9 +43,11 @@ export const getSentNotificationDocumentHandler = (
   | IPNResponseErrorProblem
 > =>
   pipe(
-    validateTaxIdInHeader(req),
-    TE.chain(() => validateIun(req.params.iun)),
-    TE.chain(() => validateDocIdx(req.params.docIdx)),
+    sequenceT(TE.ApplySeq)(
+      validateTaxIdInHeader(req),
+      validateIun(req.params.iun),
+      validateDocIdx(req.params.docIdx)
+    ),
     TE.map(() =>
       ResponseSuccessJson(aValidNotificationAttachmentDownloadMetadataResponse)
     ),
@@ -58,10 +61,12 @@ export const getLegalFactHandler = (
   | IPNResponseErrorProblem
 > =>
   pipe(
-    validateTaxIdInHeader(req),
-    TE.chain(() => validateIun(req.params.iun)),
-    TE.chain(() => validateLegalFactType(req.params.legalFactType)),
-    TE.chain(() => validateLegalFactId(req.params.legalFactId)),
+    sequenceT(TE.ApplySeq)(
+      validateTaxIdInHeader(req),
+      validateIun(req.params.iun),
+      validateLegalFactType(req.params.legalFactType),
+      validateLegalFactId(req.params.legalFactId)
+    ),
     TE.map(() => ResponseSuccessJson(aValidLegalFactDownloadMetadataResponse)),
     TE.toUnion
   )();
