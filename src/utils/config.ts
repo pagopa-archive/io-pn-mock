@@ -8,9 +8,9 @@ export const Config = t.type({
   COSMOSDB_KEY: t.string,
   COSMOSDB_NAME: t.string,
   COSMOSDB_URI: t.string,
-  SERVER_PORT: t.string,
+  IO_FUNCTION_SERVICES_BASE_URL: t.string,
   IO_FUNCTION_SERVICES_TOKEN: t.string,
-  IO_FUNCTION_SERVICES_BASE_URL: t.string
+  SERVER_PORT: t.string
 });
 
 export type Config = t.TypeOf<typeof Config>;

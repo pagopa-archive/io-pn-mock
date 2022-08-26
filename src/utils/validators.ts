@@ -1,7 +1,3 @@
-import {
-  IResponseErrorValidation,
-  ResponseErrorValidation
-} from "@pagopa/ts-commons/lib/responses";
 import { pipe } from "fp-ts/lib/function";
 
 import * as express from "express";
@@ -14,33 +10,19 @@ import {
   validDocIdxIdList
 } from "../__mocks__/variables";
 import { LegalFactType } from "./types";
-import { IPNResponseErrorProblem, PNResponseErrorProblem } from "./responses";
-
-// this function should be replaced with the nearly next one, i'm not removing this at the moment to not break anything
-export const validateTaxIdHeader = (req: express.Request) => (): TE.TaskEither<
-  IResponseErrorValidation,
-  FiscalCode
-> =>
-  pipe(
-    req.headers["x-pagopa-cx-taxid"],
-    FiscalCode.decode,
-    E.mapLeft(() =>
-      ResponseErrorValidation(
-        "Error while processing request",
-        "Missing x-pagopa-cx-taxid header"
-      )
-    ),
-    TE.fromEither
-  );
+import {
+  IPNResponseErrorValidation,
+  PNResponseErrorValidation
+} from "./responses";
 
 export const validateTaxIdInHeader = (
   req: express.Request
-): TE.TaskEither<IPNResponseErrorProblem, FiscalCode> =>
+): TE.TaskEither<IPNResponseErrorValidation, FiscalCode> =>
   pipe(
     req.headers["x-pagopa-cx-taxid"],
     FiscalCode.decode,
     E.mapLeft(() =>
-      PNResponseErrorProblem(
+      PNResponseErrorValidation(
         "Invalid taxId",
         "taxId must be provided inside headers",
         []
@@ -54,7 +36,7 @@ Check whether the iun is valid, if so it is returned, otherwise a PNResponseErro
  */
 export const validateIun = (
   iun: unknown
-): TE.TaskEither<IPNResponseErrorProblem, string> =>
+): TE.TaskEither<IPNResponseErrorValidation, string> =>
   pipe(
     validIunList,
     TE.fromPredicate(
@@ -62,7 +44,7 @@ export const validateIun = (
       () => "The iun provided is not valid, please check for existance"
     ),
     TE.mapLeft((errorMessage: string) =>
-      PNResponseErrorProblem("Invalid IUN", errorMessage, [])
+      PNResponseErrorValidation("Invalid IUN", errorMessage, [])
     ),
     TE.map(() => iun as string)
   );
@@ -72,7 +54,7 @@ Check whether the docIdx is valid, if so it is returned, otherwise a PNResponseE
  */
 export const validateDocIdx = (
   docIdx: unknown
-): TE.TaskEither<IPNResponseErrorProblem, string> =>
+): TE.TaskEither<IPNResponseErrorValidation, string> =>
   pipe(
     validDocIdxIdList,
     TE.fromPredicate(
@@ -80,7 +62,7 @@ export const validateDocIdx = (
       () => "The docIdx is not valid"
     ),
     TE.mapLeft(() =>
-      PNResponseErrorProblem(
+      PNResponseErrorValidation(
         "Invalid docIdx",
         "docIdx must be provided inside params as non empty string",
         []
@@ -94,12 +76,12 @@ Check whether the legalFactType is valid, if so it is returned, otherwise a PNRe
  */
 export const validateLegalFactType = (
   legalFactType: unknown
-): TE.TaskEither<IPNResponseErrorProblem, LegalFactType> =>
+): TE.TaskEither<IPNResponseErrorValidation, LegalFactType> =>
   pipe(
     LegalFactType.decode(legalFactType),
     TE.fromEither,
     TE.mapLeft(() =>
-      PNResponseErrorProblem(
+      PNResponseErrorValidation(
         "Invalid legalFactType",
         "legalFactType must be one of the following: SENDER_ACK | DIGITAL_DELIVERY | ANALOG_DELIVERY | RECIPIENT_ACCESS",
         []
@@ -112,7 +94,7 @@ Check whether the legalFactId is valid, if so it is returned, otherwise a PNResp
  */
 export const validateLegalFactId = (
   legalFactId: unknown
-): TE.TaskEither<IPNResponseErrorProblem, string> =>
+): TE.TaskEither<IPNResponseErrorValidation, string> =>
   pipe(
     validLegalFactList,
     TE.fromPredicate(
@@ -120,7 +102,7 @@ export const validateLegalFactId = (
       () => "Invalid legalFactId, please check for existance"
     ),
     TE.mapLeft(errorMessage =>
-      PNResponseErrorProblem("Invalid legalFactId", errorMessage, [])
+      PNResponseErrorValidation("Invalid legalFactId", errorMessage, [])
     ),
     TE.map(() => legalFactId as string)
   );

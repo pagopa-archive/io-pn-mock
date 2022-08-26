@@ -14,18 +14,70 @@ export interface IPNResponse<T> extends IResponse<T> {
   readonly errors: ReadonlyArray<ProblemError>;
 }
 
-export type IPNResponseErrorProblem = IPNResponse<"IResponseErrorProblem">;
-
 /**
 Return a response with 400
  */
-export const PNResponseErrorProblem = (
+export type IPNResponseErrorValidation = IPNResponse<
+  "IResponseErrorValidation"
+>;
+
+export const PNResponseErrorValidation = (
   title: string,
   detail: string,
   errors: ReadonlyArray<ProblemError>
-): IPNResponseErrorProblem => ({
+): IPNResponseErrorValidation => ({
   ...ResponseErrorGeneric(HttpStatusCodeEnum.HTTP_STATUS_400, title, detail),
   detail,
   errors,
-  kind: "IResponseErrorProblem"
+  kind: "IResponseErrorValidation"
+});
+
+/**
+Return a response with 500
+ */
+export type IPNResponseErrorInternal = IPNResponse<"IResponseErrorInternal">;
+
+export const PNResponseErrorInternal = (
+  title: string,
+  detail: string,
+  errors: ReadonlyArray<ProblemError>
+): IPNResponseErrorInternal => ({
+  ...ResponseErrorGeneric(HttpStatusCodeEnum.HTTP_STATUS_500, title, detail),
+  detail,
+  errors,
+  kind: "IResponseErrorInternal"
+});
+
+/**
+Return a response with 403
+ */
+export type IPNResponseErrorForbiddenNotAuthorized = IPNResponse<
+  "IResponseErrorForbiddenNotAuthorized"
+>;
+
+export const PNResponseErrorForbiddenNotAuthorized = (
+  title: string,
+  detail: string,
+  errors: ReadonlyArray<ProblemError>
+): IPNResponseErrorForbiddenNotAuthorized => ({
+  ...ResponseErrorGeneric(HttpStatusCodeEnum.HTTP_STATUS_403, title, detail),
+  detail,
+  errors,
+  kind: "IResponseErrorForbiddenNotAuthorized"
+});
+
+/**
+Return a response with 404
+ */
+export type IPNResponseErrorNotFound = IPNResponse<"IResponseErrorNotFound">;
+
+export const PNResponseErrorNotFound = (
+  title: string,
+  detail: string,
+  errors: ReadonlyArray<ProblemError>
+): IPNResponseErrorNotFound => ({
+  ...ResponseErrorGeneric(HttpStatusCodeEnum.HTTP_STATUS_403, title, detail),
+  detail,
+  errors,
+  kind: "IResponseErrorNotFound"
 });

@@ -5,18 +5,10 @@ import * as E from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import * as express from "express";
 import {
-  IResponseErrorValidation,
   IResponseSuccessJson,
-  ResponseErrorValidation,
   ResponseSuccessJson,
   ResponseSuccessNoContent,
-  IResponseSuccessNoContent,
-  ResponseErrorNotFound,
-  IResponseErrorNotFound,
-  ResponseErrorForbiddenNotAuthorized,
-  IResponseErrorForbiddenNotAuthorized,
-  ResponseErrorInternal,
-  IResponseErrorInternal
+  IResponseSuccessNoContent
 } from "@pagopa/ts-commons/lib/responses";
 import { INonEmptyStringTag } from "@pagopa/ts-commons/lib/strings";
 import { CosmosDecodingError } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
@@ -28,21 +20,37 @@ import { dbInstance } from "../utils/cosmos";
 import { log } from "../utils/logger";
 import { Client } from "../generated/client";
 import { ActivationStatusEnum } from "../generated/ActivationStatus";
-import { validateTaxIdHeader } from "../utils/validators";
+import { validateTaxIdInHeader } from "../utils/validators";
+import {
+  IPNResponseErrorForbiddenNotAuthorized,
+  IPNResponseErrorInternal,
+  PNResponseErrorForbiddenNotAuthorized,
+  PNResponseErrorInternal,
+  PNResponseErrorNotFound,
+  PNResponseErrorValidation,
+  IPNResponseErrorValidation,
+  IPNResponseErrorNotFound
+} from "../utils/responses";
 
 export const courtesyGetHandler = (
   req: express.Request
 ): Promise<
-  | IResponseErrorValidation
-  | IResponseErrorNotFound
-  | IResponseErrorForbiddenNotAuthorized
-  | IResponseErrorInternal
+  | IPNResponseErrorValidation
+  | IPNResponseErrorNotFound
+  | IPNResponseErrorForbiddenNotAuthorized
+  | IPNResponseErrorInternal
   | IResponseSuccessJson<IoCourtesyDigitalAddressActivation>
 > =>
   pipe(
     req.headers["x-api-key"],
-    TE.fromNullable(ResponseErrorForbiddenNotAuthorized),
-    TE.chainW(validateTaxIdHeader(req)),
+    TE.fromNullable(
+      PNResponseErrorForbiddenNotAuthorized(
+        "Forbidden not authorized",
+        "The x-api-key was not provided",
+        []
+      )
+    ),
+    TE.chainW(() => validateTaxIdInHeader(req)),
     TE.chainW(fiscalCode => {
       const container = dbInstance.container("ACTIVATIONS");
       const activationDocument = new UserActivationDocument(container);
@@ -51,12 +59,14 @@ export const courtesyGetHandler = (
         activationDocument.find([
           (fiscalCode as unknown) as string & INonEmptyStringTag
         ]),
-        TE.mapLeft(err => ResponseErrorInternal(err.kind))
+        TE.mapLeft(err =>
+          PNResponseErrorInternal(err.kind, "COSMOS query error", [])
+        )
       );
     }),
     TE.chainW(
       TE.fromOption(() =>
-        ResponseErrorNotFound("Error during read", "Not found")
+        PNResponseErrorNotFound("Error during read", "Not found", [])
       )
     ),
     TE.map(activationDocument => ResponseSuccessJson(activationDocument)),
@@ -66,24 +76,31 @@ export const courtesyGetHandler = (
 export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
   req: express.Request
 ): Promise<
-  | IResponseErrorValidation
-  | IResponseErrorForbiddenNotAuthorized
-  | IResponseErrorInternal
+  | IPNResponseErrorValidation
+  | IPNResponseErrorForbiddenNotAuthorized
+  | IPNResponseErrorInternal
   | IResponseSuccessNoContent
 > =>
   pipe(
     req.headers["x-api-key"],
-    TE.fromNullable(ResponseErrorForbiddenNotAuthorized),
-    TE.chainW(validateTaxIdHeader(req)),
+    TE.fromNullable(
+      PNResponseErrorForbiddenNotAuthorized(
+        "Forbidden not authorized",
+        "the x-api-key is invalid",
+        []
+      )
+    ),
+    TE.chainW(() => validateTaxIdInHeader(req)),
     TE.bindTo("fiscalCode"),
     TE.bindW("activationStatus", _ =>
       pipe(
         req.body.activationStatus,
         t.boolean.decode,
         E.mapLeft(() =>
-          ResponseErrorValidation(
+          PNResponseErrorValidation(
             "Error while processing request",
-            "invalid activationStatus parameter in the body request"
+            "invalid activationStatus parameter in the body request",
+            []
           )
         ),
         TE.fromEither
@@ -121,14 +138,18 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
               }),
             err => {
               log.error(`upsertServiceActivation responded with: ${err}`);
-              return ResponseErrorInternal(
-                "Could not update the service activation on functions-services"
+              return PNResponseErrorInternal(
+                "Not found",
+                "Could not update the service activation on functions-services",
+                []
               );
             }
           )
         ),
         //
-        TE.mapLeft(err => ResponseErrorInternal(err.kind))
+        TE.mapLeft(err =>
+          PNResponseErrorInternal(err.kind, "COSMOS query error", [])
+        )
       );
     }),
     // The client reject the promise only if something went wrong, like a JSON.parse of the output
@@ -136,6 +157,7 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
     TE.map(
       flow(
         E.map(response => {
+          // eslint-disable-next-line sonarjs/no-small-switch
           switch (response.status) {
             case 200:
               return ResponseSuccessNoContent();
@@ -143,16 +165,20 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
               log.error(
                 `upsertServiceActivation returned ${response.status}: ${response.value}`
               );
-              return ResponseErrorInternal(
-                "Could not update the service activation on functions-services"
+              return PNResponseErrorInternal(
+                "Update error",
+                "Could not update the service activation on functions-services",
+                []
               );
           }
         }),
         E.getOrElseW(err =>
-          ResponseErrorInternal(
+          PNResponseErrorInternal(
+            "Update error",
             `Error while updating the service activation:${PR.failure(err).join(
               "\n"
-            )}`
+            )}`,
+            []
           )
         )
       )

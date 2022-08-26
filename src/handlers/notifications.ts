@@ -8,7 +8,7 @@ import {
 import * as TE from "fp-ts/lib/TaskEither";
 import { sequenceT } from "fp-ts/lib/Apply";
 import { FullReceivedNotification } from "../generated/FullReceivedNotification";
-import { IPNResponseErrorProblem } from "../utils/responses";
+import { IPNResponseErrorValidation } from "../utils/responses";
 import {
   aValidFullReceivedNotification,
   aValidLegalFactDownloadMetadataResponse,
@@ -27,7 +27,7 @@ import { LegalFactDownloadMetadataResponse } from "../generated/LegalFactDownloa
 export const getReceivedNotificationHandler = (
   req: Request
 ): Promise<
-  IResponseSuccessJson<FullReceivedNotification> | IPNResponseErrorProblem
+  IResponseSuccessJson<FullReceivedNotification> | IPNResponseErrorValidation
 > =>
   pipe(
     validateTaxIdInHeader(req),
@@ -40,7 +40,7 @@ export const getSentNotificationDocumentHandler = (
   req: Request
 ): Promise<
   | IResponseSuccessJson<NotificationAttachmentDownloadMetadataResponse>
-  | IPNResponseErrorProblem
+  | IPNResponseErrorValidation
 > =>
   pipe(
     sequenceT(TE.ApplySeq)(
@@ -58,7 +58,7 @@ export const getLegalFactHandler = (
   req: Request
 ): Promise<
   | IResponseSuccessJson<LegalFactDownloadMetadataResponse>
-  | IPNResponseErrorProblem
+  | IPNResponseErrorValidation
 > =>
   pipe(
     sequenceT(TE.ApplySeq)(
