@@ -11,7 +11,9 @@ import {
 } from "../__mocks__/variables";
 import { LegalFactType } from "./types";
 import {
+  IPNResponseErrorForbiddenNotAuthorized,
   IPNResponseErrorValidation,
+  PNResponseErrorForbiddenNotAuthorized,
   PNResponseErrorValidation
 } from "./responses";
 
@@ -29,6 +31,25 @@ export const validateTaxIdInHeader = (
       )
     ),
     TE.fromEither
+  );
+
+// INFO: while testing the API, i found out that if the x-api-key was not provided it would return 403,
+// however this is not specified in the spec
+export const validateXApiKeyInHeader = (
+  req: express.Request
+): TE.TaskEither<
+  IPNResponseErrorForbiddenNotAuthorized,
+  string | ReadonlyArray<string>
+> =>
+  pipe(
+    req.headers["x-api-key"],
+    TE.fromNullable(
+      PNResponseErrorForbiddenNotAuthorized(
+        "Forbidden not authorized",
+        "The x-api-key was not provided",
+        []
+      )
+    )
   );
 
 /**

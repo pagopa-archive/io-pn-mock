@@ -1,5 +1,4 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-import { flow, pipe } from "fp-ts/lib/function";
+import { flow, identity, pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import * as t from "io-ts";
@@ -20,11 +19,13 @@ import { dbInstance } from "../utils/cosmos";
 import { log } from "../utils/logger";
 import { Client } from "../generated/client";
 import { ActivationStatusEnum } from "../generated/ActivationStatus";
-import { validateTaxIdInHeader } from "../utils/validators";
+import {
+  validateTaxIdInHeader,
+  validateXApiKeyInHeader
+} from "../utils/validators";
 import {
   IPNResponseErrorForbiddenNotAuthorized,
   IPNResponseErrorInternal,
-  PNResponseErrorForbiddenNotAuthorized,
   PNResponseErrorInternal,
   PNResponseErrorNotFound,
   PNResponseErrorValidation,
@@ -42,14 +43,7 @@ export const courtesyGetHandler = (
   | IResponseSuccessJson<IoCourtesyDigitalAddressActivation>
 > =>
   pipe(
-    req.headers["x-api-key"],
-    TE.fromNullable(
-      PNResponseErrorForbiddenNotAuthorized(
-        "Forbidden not authorized",
-        "The x-api-key was not provided",
-        []
-      )
-    ),
+    validateXApiKeyInHeader(req),
     TE.chainW(() => validateTaxIdInHeader(req)),
     TE.chainW(fiscalCode => {
       const container = dbInstance.container("ACTIVATIONS");
@@ -82,14 +76,7 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
   | IResponseSuccessNoContent
 > =>
   pipe(
-    req.headers["x-api-key"],
-    TE.fromNullable(
-      PNResponseErrorForbiddenNotAuthorized(
-        "Forbidden not authorized",
-        "the x-api-key is invalid",
-        []
-      )
-    ),
+    validateXApiKeyInHeader(req),
     TE.chainW(() => validateTaxIdInHeader(req)),
     TE.bindTo("fiscalCode"),
     TE.bindW("activationStatus", _ =>
@@ -156,28 +143,14 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
     // the response could contain HTTP error codes so it is necessary to filter out the response
     TE.map(
       flow(
-        E.map(response => {
-          // eslint-disable-next-line sonarjs/no-small-switch
-          switch (response.status) {
-            case 200:
-              return ResponseSuccessNoContent();
-            default:
-              log.error(
-                `upsertServiceActivation returned ${response.status}: ${response.value}`
-              );
-              return PNResponseErrorInternal(
-                "Update error",
-                "Could not update the service activation on functions-services",
-                []
-              );
-          }
-        }),
+        E.chainW(
+          E.fromPredicate(response => response.status === 200, identity)
+        ),
+        E.map(() => ResponseSuccessNoContent()),
         E.getOrElseW(err =>
           PNResponseErrorInternal(
             "Update error",
-            `Error while updating the service activation:${PR.failure(err).join(
-              "\n"
-            )}`,
+            `Error while updating the service activation:${err}`,
             []
           )
         )
