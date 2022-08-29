@@ -1,22 +1,13 @@
-/* eslint-disable sonarjs/no-duplicate-string */
-import { flow, pipe } from "fp-ts/lib/function";
+import { flow, identity, pipe } from "fp-ts/lib/function";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import * as express from "express";
 import {
-  IResponseErrorValidation,
   IResponseSuccessJson,
-  ResponseErrorValidation,
   ResponseSuccessJson,
   ResponseSuccessNoContent,
-  IResponseSuccessNoContent,
-  ResponseErrorNotFound,
-  IResponseErrorNotFound,
-  ResponseErrorForbiddenNotAuthorized,
-  IResponseErrorForbiddenNotAuthorized,
-  ResponseErrorInternal,
-  IResponseErrorInternal
+  IResponseSuccessNoContent
 } from "@pagopa/ts-commons/lib/responses";
 import { INonEmptyStringTag } from "@pagopa/ts-commons/lib/strings";
 import { CosmosDecodingError } from "@pagopa/io-functions-commons/dist/src/utils/cosmosdb_model";
@@ -28,21 +19,32 @@ import { dbInstance } from "../utils/cosmos";
 import { log } from "../utils/logger";
 import { Client } from "../generated/client";
 import { ActivationStatusEnum } from "../generated/ActivationStatus";
-import { validateTaxIdHeader } from "../utils/validators";
+import {
+  validateTaxIdInHeader,
+  validateXApiKeyInHeader
+} from "../utils/validators";
+import {
+  IPNResponseErrorForbiddenNotAuthorized,
+  IPNResponseErrorInternal,
+  PNResponseErrorInternal,
+  PNResponseErrorNotFound,
+  PNResponseErrorValidation,
+  IPNResponseErrorValidation,
+  IPNResponseErrorNotFound
+} from "../utils/responses";
 
 export const courtesyGetHandler = (
   req: express.Request
 ): Promise<
-  | IResponseErrorValidation
-  | IResponseErrorNotFound
-  | IResponseErrorForbiddenNotAuthorized
-  | IResponseErrorInternal
+  | IPNResponseErrorValidation
+  | IPNResponseErrorNotFound
+  | IPNResponseErrorForbiddenNotAuthorized
+  | IPNResponseErrorInternal
   | IResponseSuccessJson<IoCourtesyDigitalAddressActivation>
 > =>
   pipe(
-    req.headers["x-api-key"],
-    TE.fromNullable(ResponseErrorForbiddenNotAuthorized),
-    TE.chainW(validateTaxIdHeader(req)),
+    validateXApiKeyInHeader(req),
+    TE.chainW(() => validateTaxIdInHeader(req)),
     TE.chainW(fiscalCode => {
       const container = dbInstance.container("ACTIVATIONS");
       const activationDocument = new UserActivationDocument(container);
@@ -51,12 +53,14 @@ export const courtesyGetHandler = (
         activationDocument.find([
           (fiscalCode as unknown) as string & INonEmptyStringTag
         ]),
-        TE.mapLeft(err => ResponseErrorInternal(err.kind))
+        TE.mapLeft(err =>
+          PNResponseErrorInternal(err.kind, "COSMOS query error", [])
+        )
       );
     }),
     TE.chainW(
       TE.fromOption(() =>
-        ResponseErrorNotFound("Error during read", "Not found")
+        PNResponseErrorNotFound("Error during read", "Not found", [])
       )
     ),
     TE.map(activationDocument => ResponseSuccessJson(activationDocument)),
@@ -66,24 +70,24 @@ export const courtesyGetHandler = (
 export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
   req: express.Request
 ): Promise<
-  | IResponseErrorValidation
-  | IResponseErrorForbiddenNotAuthorized
-  | IResponseErrorInternal
+  | IPNResponseErrorValidation
+  | IPNResponseErrorForbiddenNotAuthorized
+  | IPNResponseErrorInternal
   | IResponseSuccessNoContent
 > =>
   pipe(
-    req.headers["x-api-key"],
-    TE.fromNullable(ResponseErrorForbiddenNotAuthorized),
-    TE.chainW(validateTaxIdHeader(req)),
+    validateXApiKeyInHeader(req),
+    TE.chainW(() => validateTaxIdInHeader(req)),
     TE.bindTo("fiscalCode"),
     TE.bindW("activationStatus", _ =>
       pipe(
         req.body.activationStatus,
         t.boolean.decode,
         E.mapLeft(() =>
-          ResponseErrorValidation(
+          PNResponseErrorValidation(
             "Error while processing request",
-            "invalid activationStatus parameter in the body request"
+            "invalid activationStatus parameter in the body request",
+            []
           )
         ),
         TE.fromEither
@@ -121,38 +125,33 @@ export const courtesyPutHandler = (client: Client<"SubscriptionKey">) => (
               }),
             err => {
               log.error(`upsertServiceActivation responded with: ${err}`);
-              return ResponseErrorInternal(
-                "Could not update the service activation on functions-services"
+              return PNResponseErrorInternal(
+                "Not found",
+                "Could not update the service activation on functions-services",
+                []
               );
             }
           )
         ),
         //
-        TE.mapLeft(err => ResponseErrorInternal(err.kind))
+        TE.mapLeft(err =>
+          PNResponseErrorInternal(err.kind, "COSMOS query error", [])
+        )
       );
     }),
     // The client reject the promise only if something went wrong, like a JSON.parse of the output
     // the response could contain HTTP error codes so it is necessary to filter out the response
     TE.map(
       flow(
-        E.map(response => {
-          switch (response.status) {
-            case 200:
-              return ResponseSuccessNoContent();
-            default:
-              log.error(
-                `upsertServiceActivation returned ${response.status}: ${response.value}`
-              );
-              return ResponseErrorInternal(
-                "Could not update the service activation on functions-services"
-              );
-          }
-        }),
+        E.chainW(
+          E.fromPredicate(response => response.status === 200, identity)
+        ),
+        E.map(() => ResponseSuccessNoContent()),
         E.getOrElseW(err =>
-          ResponseErrorInternal(
-            `Error while updating the service activation:${PR.failure(err).join(
-              "\n"
-            )}`
+          PNResponseErrorInternal(
+            "Update error",
+            `Error while updating the service activation:${err}`,
+            []
           )
         )
       )
