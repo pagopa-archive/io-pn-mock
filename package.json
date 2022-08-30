@@ -9,6 +9,7 @@
     "prebuild": "rimraf dist && yarn generate",
     "build": "tsc",
     "postversion": "git push && git push --tags",
+    "pretest": "yarn generate",
     "test": "jest",
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "start": "node -r dotenv/config dist/index.js",
