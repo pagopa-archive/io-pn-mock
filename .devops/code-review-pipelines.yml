@@ -28,12 +28,6 @@ stages:
   - stage: Build
     dependsOn: []
     jobs:
-      - job: generate
-        steps:
-          - template: templates/node-job-setup/template.yaml@pagopaCommons
-          - bash: |
-              yarn generate
-            displayName: 'Generate types'
       - job: make_build
         steps:
           - template: templates/node-job-setup/template.yaml@pagopaCommons

@@ -6,7 +6,7 @@
   "author": "https://pagopa.gov.it",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && yarn generate",
     "build": "tsc",
     "postversion": "git push && git push --tags",
     "test": "jest",
