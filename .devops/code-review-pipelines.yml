@@ -60,7 +60,7 @@ stages:
   - stage: Test
     dependsOn: []
     jobs:
-      - job: unit_tests
+      - job: run_tests
         steps:
           - template: templates/node-job-setup/template.yaml@pagopaCommons
           - bash: |
