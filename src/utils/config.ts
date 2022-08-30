@@ -1,6 +1,7 @@
 import { pipe } from "fp-ts/function";
 import * as E from "fp-ts/lib/Either";
 import * as t from "io-ts";
+import { mockedConfig } from "../__mocks__/variables";
 import { generateFunctionsServicesClient } from "./functions_services_client";
 import { log } from "./logger";
 
@@ -16,7 +17,7 @@ export const Config = t.type({
 export type Config = t.TypeOf<typeof Config>;
 
 export const getConfig = (env: NodeJS.ProcessEnv): E.Either<t.Errors, Config> =>
-  pipe(env, Config.decode);
+  env.NODE_ENV === "test" ? Config.decode(mockedConfig) : Config.decode(env);
 
 export const config = pipe(
   getConfig(process.env),

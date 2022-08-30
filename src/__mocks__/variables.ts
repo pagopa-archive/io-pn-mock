@@ -61,3 +61,14 @@ export const aValidLegalFactDownloadMetadataResponse: LegalFactDownloadMetadataR
   filename: "name.extension",
   url: "/download"
 };
+
+// ENV VARIABLES FOR THE TESTS
+export const mockedConfig = {
+  "SERVER_PORT": "3004",
+  "COSMOSDB_URI": "http://example.com",
+  "COSMOSDB_KEY": "aKey",
+  "COSMOSDB_NAME": "aName",
+  "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+  "IO_FUNCTION_SERVICES_BASE_URL": "aUrl",
+  "IO_FUNCTION_SERVICES_TOKEN": "aToken"
+}

@@ -6,7 +6,12 @@
 
 # Automatically triggered on PR
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema%2Cparameter-schema#pr-trigger
-trigger: none
+pr:
+  autoCancel: false
+  branches:
+    include:
+      - main
+      - master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -23,12 +28,6 @@ stages:
   - stage: Build
     dependsOn: []
     jobs:
-      - job: generate
-        steps:
-          - template: templates/node-job-setup/template.yaml@pagopaCommons
-          - bash: |
-              yarn generate
-            displayName: 'Generate types'
       - job: make_build
         steps:
           - template: templates/node-job-setup/template.yaml@pagopaCommons
@@ -61,7 +60,7 @@ stages:
   - stage: Test
     dependsOn: []
     jobs:
-      - job: unit_tests
+      - job: run_tests
         steps:
           - template: templates/node-job-setup/template.yaml@pagopaCommons
           - bash: |
