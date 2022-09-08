@@ -9,7 +9,7 @@ import { LegalFactDownloadMetadataResponse } from "../generated/LegalFactDownloa
 import { LegalFactCategoryEnum } from "../generated/LegalFactCategory";
 
 /**represent a list of existing iun*/
-export const validIunList: string[] = ["validIun"];
+export const validIunList: string[] = ["validIun", "0", "test", "example"];
 
 /**represent a list of existing legalFact*/
 export const validLegalFactList = [
@@ -52,23 +52,23 @@ export const aValidNotificationAttachmentDownloadMetadataResponse: NotificationA
   contentLength: 1,
   contentType: "content type",
   filename: "validName",
-  url: "/download",
+  url: `http://host.docker.internal:${process.env.SERVER_PORT}/download`,
   sha256: "f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b"
 };
 
 export const aValidLegalFactDownloadMetadataResponse: LegalFactDownloadMetadataResponse = {
   contentLength: 1,
   filename: "name.extension",
-  url: "/download"
+  url: `http://host.docker.internal:${process.env.SERVER_PORT}/download`
 };
 
 // ENV VARIABLES FOR THE TESTS
 export const mockedConfig = {
-  "SERVER_PORT": "3004",
-  "COSMOSDB_URI": "http://example.com",
-  "COSMOSDB_KEY": "aKey",
-  "COSMOSDB_NAME": "aName",
-  "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-  "IO_FUNCTION_SERVICES_BASE_URL": "aUrl",
-  "IO_FUNCTION_SERVICES_TOKEN": "aToken"
-}
+  SERVER_PORT: "3004",
+  COSMOSDB_URI: "http://example.com",
+  COSMOSDB_KEY: "aKey",
+  COSMOSDB_NAME: "aName",
+  NODE_TLS_REJECT_UNAUTHORIZED: "0",
+  IO_FUNCTION_SERVICES_BASE_URL: "aUrl",
+  IO_FUNCTION_SERVICES_TOKEN: "aToken"
+};

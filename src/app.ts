@@ -13,6 +13,12 @@ export const createApp = (): express.Application => {
   // parse URL-encoded bodies
   app.use(express.urlencoded({ extended: true }));
 
+  // LOG INFOS FOR ANY RESPONSE (JUST FOR TEST PURPOSES)
+  app.use((req, _, next) => {
+    log.info(`${req.method} ${req.url}`);
+    next();
+  });
+
   // ROUTES
   app.use(courtesy_router);
   app.use(delivery_router);

@@ -13,7 +13,7 @@
     "test": "jest",
     "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx",
     "start": "node -r dotenv/config dist/index.js",
-    "watch": "nodemon -r dotenv/config src/index.ts",
+    "watch": "nodemon -r dotenv/config dist/index.js",
     "pregenerate": "npm-run-all openapi:*",
     "openapi:bundle-courtesy": "bundle-api-spec --api-spec ./docs/openapi/pn-address-book-b2b-external-io-v1.yaml --out-path ./docs/openapi/bundled-openapi.yaml",
     "openapi:bundle-delivery": "bundle-api-spec --api-spec ./docs/openapi/delivery/pn-delivery.yaml --out-path ./docs/openapi/delivery/bundled-delivery.yaml",
