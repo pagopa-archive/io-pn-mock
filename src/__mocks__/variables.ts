@@ -9,16 +9,20 @@ import { LegalFactDownloadMetadataResponse } from "../generated/LegalFactDownloa
 /**represent a list of existing iun*/
 export const validIunList: string[] = ["validIun", "0", "test", "example"];
 
+const senderAckCategory = "SENDER_ACK";
+
 /**represent a list of existing legalFact*/
 export const validLegalFactList = [
-  { category: "SENDER_ACK", key: "validLegalFactId" }
+  { category: senderAckCategory, key: "validLegalFactId" }
 ];
 
 /**represent a list of existing legalFact*/
 export const validDocIdxIdList: string[] = ["1"];
 
+const acceptedNotificationStatus = "ACCEPTED";
+
 export const aValidFullReceivedNotification: FullReceivedNotification = {
-  notificationStatus: "ACCEPTED",
+  notificationStatus: acceptedNotificationStatus,
   timeline: [
     {
       legalFactsIds: validLegalFactList
