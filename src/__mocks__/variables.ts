@@ -4,23 +4,25 @@ import {
   PhysicalCommunicationTypeEnum
 } from "../generated/NewNotificationRequest";
 import { NotificationAttachmentDownloadMetadataResponse } from "../generated/NotificationAttachmentDownloadMetadataResponse";
-import { NotificationStatusEnum } from "../generated/NotificationStatus";
 import { LegalFactDownloadMetadataResponse } from "../generated/LegalFactDownloadMetadataResponse";
-import { LegalFactCategoryEnum } from "../generated/LegalFactCategory";
 
 /**represent a list of existing iun*/
 export const validIunList: string[] = ["validIun", "0", "test", "example"];
 
+const senderAckCategory = "SENDER_ACK";
+
 /**represent a list of existing legalFact*/
 export const validLegalFactList = [
-  { category: LegalFactCategoryEnum.SENDER_ACK, key: "validLegalFactId" }
+  { category: senderAckCategory, key: "validLegalFactId" }
 ];
 
 /**represent a list of existing legalFact*/
 export const validDocIdxIdList: string[] = ["1"];
 
+const acceptedNotificationStatus = "ACCEPTED";
+
 export const aValidFullReceivedNotification: FullReceivedNotification = {
-  notificationStatus: NotificationStatusEnum.ACCEPTED,
+  notificationStatus: acceptedNotificationStatus,
   timeline: [
     {
       legalFactsIds: validLegalFactList
